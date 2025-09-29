@@ -1,4 +1,5 @@
 # Inscripciones
+<<<<<<< HEAD
 
 Sistema de inscripciones estudiantiles.
 
@@ -19,3 +20,7 @@ inscripciones/
 ```
 
 Esta separación ayuda a mantener el código organizado y facilita el despliegue y mantenimiento de la aplicación.
+=======
+sistema de inscripciones estudiantiles 
+Y Bigotes no hace nada
+>>>>>>> 97798f61293dfd109efae9167abebd2d25a243d6
