@@ -1,0 +1,57 @@
+
+.Info {
+    /* Define el ancho del bloque de texto y lista.
+       En pantallas grandes, ocupará aproximadamente la mitad del espacio. */
+    flex: 1 1 45%; 
+    padding-right: 20px; /* Espacio entre el texto y el video */
+}
+
+.Info p {
+    /* Mejora la legibilidad del texto */
+    margin-bottom: 20px;
+    line-height: 1.6;
+    color: #333;
+}
+
+.Info ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.Info ul li {
+    /* Íconos o estilo personalizado para la lista */
+    padding-left: 20px;
+    margin-bottom: 8px;
+    position: relative;
+    /* Opcional: Agregar un icono (checkmark) como estilo de lista */
+    /* Puedes reemplazar esto con un icono de Bootstrap o Font Awesome si los usas */
+    /* content: "✅"; es una alternativa si no usas librerías de iconos */
+}
+
+.Video {
+    /* Define el ancho del bloque de video.
+       En pantallas grandes, ocupará aproximadamente la mitad del espacio. */
+    flex: 1 1 50%; 
+    min-width: 300px; /* Asegura que no se haga demasiado pequeño */
+}
+
+/* ---------------------------------------------------- */
+/* Media Query para responsividad (cuando los elementos se apilan) */
+/* ---------------------------------------------------- */
+
+@media (max-width: 992px) {
+    .Diseño {
+        flex-direction: column; /* Apila los elementos verticalmente en pantallas pequeñas */
+        padding: 30px 15px;
+    }
+    
+    .Info {
+        flex-basis: 100%; /* El bloque de texto ocupa todo el ancho */
+        padding-right: 0;
+        margin-bottom: 25px; /* Espacio entre el texto y el video cuando están apilados */
+    }
+
+    .Video {
+        flex-basis: 100%; /* El video también ocupa todo el ancho */
+    }
+}

@@ -1,0 +1,28 @@
+body{
+    margin: 0%;
+}
+
+.BuscadorClass{
+    margin-left: 5px;
+    padding: auto;
+    width: 340px;
+    height: 250px  
+}
+.form-select{
+    margin: 5px 15px;
+    width: 80%;
+}
+
+.form-control{
+    margin: 5px 15px;
+    width: 80%;
+}
+
+.btn{
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+h3{
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
