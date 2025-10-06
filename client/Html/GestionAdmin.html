@@ -5,25 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión Académica</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="/client/Css/style.css">
 </head>
 
 <body>
     <main>
         <h1>Gestión de Asignaturas</h1>
-        <section class="form-container">
+        <section class="form-container" id="gestion-asignaturas">
             <h2>Nueva Asignatura</h2>
             <form id="form-nueva-asignatura">
                 <input type="text" id="nombre" placeholder="Nombre de la Asignatura" required>
                 <input type="text" id="codigo" placeholder="Código (ej. MAT-101)" required>
                 <input type="number" id="creditos" placeholder="Créditos" required>
                 <input type="number" id="horas" placeholder="Total de Horas" required>
+                <input type="text" id="imagen" placeholder="URL de la imagen">
+                <textarea id="descripcion" placeholder="Descripción del curso..." rows="4"></textarea>
                 <button type="submit">Agregar Asignatura</button>
             </form>
-            <p id="error-message" class="error"></p>
+            <p id="error-message-asignatura" class="error"></p>
         </section>
-        <section class="table-container">
-            <h2>Asignaturas Registradas</h2>
+        <section class="table-container" id="tabla-asignaturas-container">
+            <h2>Asignaturas</h2>
             <table id="tabla-asignaturas">
                 <thead>
                     <tr>
@@ -39,8 +42,44 @@
                 </tbody>
             </table>
         </section>
+
+        <hr>
+
+        <h1>Gestión de Profesores</h1>
+        <section class="form-container" id="gestion-profesores">
+            <h2>Nuevo Profesor</h2>
+            <form id="form-nuevo-profesor">
+                <input type="text" id="profesor-nombre" placeholder="Nombre del Profesor" required>
+                <input type="text" id="profesor-apellido" placeholder="Apellido del Profesor" required>
+                <input type="email" id="profesor-email" placeholder="Email" required>
+                <input type="text" id="profesor-departamento" placeholder="Departamento" required>
+                <button type="submit">Agregar Profesor</button>
+            </form>
+            <p id="error-message-profesor" class="error"></p>
+        </section>
+        <section class="table-container" id="tabla-profesores-container">
+            <h2>Profesores</h2>
+            <table id="tabla-profesores">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Email</th>
+                        <th>Departamento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Las filas se insertarán aquí con JavaScript -->
+                </tbody>
+            </table>
+        </section>
     </main>
-    <script src="app.js"></script>
+    <!-- 
+        NOTA: He movido el script al final del body y he cambiado la ruta para que sea relativa a la raíz.
+        Asegúrate de que tu servidor sirva los archivos estáticos desde la carpeta 'client'.
+    -->
+    <script src="/client/Js/app.js"></script>
 </body>
 
 </html>

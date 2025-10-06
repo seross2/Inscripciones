@@ -1,71 +1,138 @@
-// 1. Importar dependencias
-const express = require('express');
-const { Pool } = require('pg');
-const dotenv = require('dotenv');
-const cors = require('cors');
+import dotenv from "dotenv";
+import { createClient } from "@supabase/supabase-js";
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Cargar variables de entorno
-dotenv.config();
+// --- Configuración de Variables de Entorno ---
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-// 2. Configuración inicial
+// --- Inicialización de Express ---
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 3. Middlewares
-// La siguiente línea es la que "conecta" el frontend con el backend,
-// permitiendo que tu página web (cliente) pueda hacerle peticiones.
+// --- Middlewares ---
 app.use(cors());
-app.use(express.json()); // Permite al servidor entender JSON
+app.use(express.json());
 
-// 4. Configuración de la conexión a la base de datos
-const pool = new Pool({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    ssl: {
-        rejectUnauthorized: false
-    }
+// --- Servir archivos estáticos ---
+// Esto le dice a Express que la carpeta 'client' contiene archivos públicos.
+const clientPath = path.resolve(__dirname, '../client');
+app.use('/client', express.static(clientPath));
+
+// --- Ruta Principal ---
+// Cuando alguien visite la raíz ('/'), le enviaremos el archivo HTML principal.
+app.get('/', (req, res) => {
+    res.sendFile(path.join(clientPath, 'Html', 'PantallaInicio.html'));
 });
 
-// 5. Definir las rutas de la API (Endpoints)
+// --- Rutas para las otras páginas HTML ---
+app.get('/CursosLinea.Html', (req, res) => {
+    res.sendFile(path.join(clientPath, 'Html', 'CursosLinea.Html'));
+});
+
+// Asumo que tienes un Login.html y Register.html en la misma carpeta
+app.get('/Login.html', (req, res) => {
+    res.sendFile(path.join(clientPath, 'Html', 'Login.html'));
+});
+
+app.get('/Register.html', (req, res) => {
+    res.sendFile(path.join(clientPath, 'Html', 'Register.html'));
+});
+
+app.get('/GestionAdmin.html', (req, res) => {
+    res.sendFile(path.join(clientPath, 'Html', 'GestionAdmin.html'));
+});
+
+// --- Conexión a Supabase (usando las variables de entorno) ---
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_KEY
+);
+
+if (supabase) {
+    console.log("✅ Cliente de Supabase inicializado.");
+} else {
+    console.error("❌ Error al inicializar el cliente de Supabase. Revisa tus variables de entorno.");
+    process.exit(1); // Salir si no se puede conectar
+}
+
+// --- Rutas de la API ---
 
 // GET /api/asignaturas - Obtener todas las asignaturas
 app.get('/api/asignaturas', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM asignaturas ORDER BY id ASC');
-        res.status(200).json(result.rows);
-    } catch (error) {
+    const { data, error } = await supabase.from('ASIGNATURAS').select('*');
+    if (error) {
         console.error('Error al obtener asignaturas:', error);
-        res.status(500).json({ message: 'Error interno del servidor' });
+        return res.status(500).json({ message: 'Error interno del servidor', details: error.message });
     }
+    res.status(200).json(data);
 });
 
 // POST /api/asignaturas - Crear una nueva asignatura
 app.post('/api/asignaturas', async (req, res) => {
-    const { nombre_asignatura, codigo_asignatura, creditos, total_horas } = req.body;
+    const { nombre_asignatura, codigo_asignatura, creditos, total_horas, imagen_url, descripcion_curso } = req.body;
+    const { data, error } = await supabase
+        .from('ASIGNATURAS')
+        .insert([{ 
+            NombreAsignatura: nombre_asignatura, 
+            CodigoAsignatura: codigo_asignatura, 
+            Creditos: creditos, 
+            TotalHoras: total_horas,
+            Imagen: imagen_url,
+            Descripcion_Curso: descripcion_curso
+        }])
+        .select()
+        .single();
 
-    if (!nombre_asignatura || !codigo_asignatura || !creditos || !total_horas) {
-        return res.status(400).json({ message: 'Todos los campos son requeridos' });
-    }
-
-    try {
-        const result = await pool.query(
-            'INSERT INTO asignaturas (nombre_asignatura, codigo_asignatura, creditos, total_horas) VALUES ($1, $2, $3, $4) RETURNING *',
-            [nombre_asignatura, codigo_asignatura, creditos, total_horas]
-        );
-        res.status(201).json(result.rows[0]);
-    } catch (error) {
+    if (error) {
         console.error('Error al crear asignatura:', error);
-        if (error.code === '23505') {
-            return res.status(409).json({ message: `El código de asignatura '${codigo_asignatura}' ya existe.` });
+        if (error.code === '23505') { // Error de unicidad
+            return res.status(409).json({ message: `La asignatura con código '${codigo_asignatura}' ya existe.` });
         }
-        res.status(500).json({ message: 'Error interno del servidor' });
+        return res.status(500).json({ message: 'Error interno del servidor', details: error.message });
     }
+    res.status(201).json(data);
 });
 
-// 6. Iniciar el servidor
+// GET /api/profesores - Obtener todos los profesores
+app.get('/api/profesores', async (req, res) => {
+    const { data, error } = await supabase.from('PROFESORES').select('*');
+    if (error) {
+        console.error('Error al obtener profesores:', error);
+        return res.status(500).json({ message: 'Error interno del servidor', details: error.message });
+    }
+    res.status(200).json(data);
+});
+
+// POST /api/profesores - Crear un nuevo profesor
+app.post('/api/profesores', async (req, res) => {
+    const { nombre, apellido, email, departamento } = req.body;
+    const { data, error } = await supabase
+        .from('PROFESORES')
+        .insert([{ 
+            Nombre: nombre, 
+            Apellido: apellido, 
+            Email: email, 
+            Departamento: departamento 
+        }])
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error al crear profesor:', error);
+        if (error.code === '23505') { // Error de unicidad (probablemente por el email)
+            return res.status(409).json({ message: `El email '${email}' ya está registrado.` });
+        }
+        return res.status(500).json({ message: 'Error interno del servidor', details: error.message });
+    }
+    res.status(201).json(data);
+});
+
+// --- Iniciar el servidor ---
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
