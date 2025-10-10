@@ -61,6 +61,10 @@ app.get('/DetalleCurso.html', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'client', 'Html', 'DetalleCurso.html'));
 });
 
+app.get('/MisCursos.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'client', 'Html', 'MisCursos.html'));
+});
+
 // Example API route to fetch data from Supabase
 app.get('/test-supabase', async (req, res) => {
   try {
@@ -138,6 +142,7 @@ app.get('/api/asignaturas/:id', async (req, res) => {
         *
         ,PROFESORES ( Nombre, Apellido, Departamento )
         ,HORARIOS ( * )
+        ,INSCRIPCIONES ( count )
         ,PERIODOS_ACADEMICOS ( * )
       `)
       .eq('AsignaturaID', id);
@@ -287,6 +292,142 @@ app.post('/api/login', async (req, res) => {
   // Creamos una "sesión" simple para el frontend.
   const session = { user: { id: user.usuario_id, email: user.email, nombre: user.nombre_usuario } };
   res.status(200).json({ message: 'Login exitoso', session: session });
+});
+
+app.get('/api/mis-cursos', async (req, res) => {
+  const { email } = req.query;
+  if (!email) {
+    return res.status(400).json({ error: 'Email es requerido.' });
+  }
+
+  try {
+    // 1. Encontrar al estudiante por su email
+    const { data: estudiante, error: estudianteError } = await supabase
+      .from('ESTUDIANTES')
+      .select('*')
+      .eq('Email', email)
+      .single();
+
+    if (estudianteError) throw estudianteError;
+    if (!estudiante) return res.status(404).json({ error: 'Estudiante no encontrado.' });
+
+    // 2. Obtener todas las inscripciones de ese estudiante con datos anidados
+    const { data: inscripciones, error: inscripcionesError } = await supabase
+      .from('INSCRIPCIONES')
+      .select(`
+        *,
+        GRUPOS (
+          *,
+          ASIGNATURAS (*),
+          PROFESORES (*),
+          PERIODOS_ACADEMICOS (*)
+        )
+      `)
+      .eq('EstudianteID', estudiante.EstudianteID);
+
+    if (inscripcionesError) throw inscripcionesError;
+
+    res.json({ estudiante, inscripciones });
+
+  } catch (error) {
+    console.error('Error fetching mis-cursos:', error.message);
+    res.status(500).json({ error: 'No se pudieron obtener los datos de los cursos.' });
+  }
+});
+
+app.post('/api/inscripciones', async (req, res) => {
+  const { Nombre, Apellido, Email, Telefono, FechaNacimiento, GrupoID } = req.body;
+
+  if (!Nombre || !Apellido || !Email || !Telefono || !FechaNacimiento || !GrupoID) {
+    return res.status(400).json({ error: 'Todos los campos son requeridos.' });
+  }
+
+  try {
+    // --- NUEVA VALIDACIÓN DE CAPACIDAD ---
+    // 1. Obtener la capacidad del grupo y el número actual de inscritos
+    const { data: grupoData, error: grupoError } = await supabase
+      .from('GRUPOS')
+      .select('Capacidad, INSCRIPCIONES (count)')
+      .eq('GrupoID', GrupoID)
+      .single();
+
+    if (grupoError) throw new Error('No se pudo verificar la capacidad del grupo.');
+
+    const capacidad = grupoData.Capacidad;
+    const inscritos = grupoData.INSCRIPCIONES[0].count;
+
+    // 2. Comparar y devolver error si el grupo está lleno
+    if (inscritos >= capacidad) {
+      return res.status(409).json({ error: 'El grupo ya ha alcanzado su capacidad máxima. No se puede inscribir.' });
+    }
+    // --- FIN DE LA VALIDACIÓN ---
+
+
+    // Paso 1: Buscar o crear el estudiante
+    let { data: estudiante, error: findError } = await supabase
+      .from('ESTUDIANTES')
+      .select('EstudianteID')
+      .eq('Email', Email)
+      .single();
+
+    if (findError && findError.code !== 'PGRST116') { // PGRST116 = no rows found
+      throw findError;
+    }
+
+    if (!estudiante) {
+      // Si el estudiante no existe, lo creamos
+      const { data: nuevoEstudiante, error: createError } = await supabase
+        .from('ESTUDIANTES')
+        .insert({ Nombre, Apellido, Email, Telefono, FechaNacimiento })
+        .select('EstudianteID')
+        .single();
+      
+      if (createError) throw createError;
+      estudiante = nuevoEstudiante;
+    }
+
+    const estudianteId = estudiante.EstudianteID;
+
+    // Paso 2: Verificar si ya existe una inscripción para este estudiante y grupo
+    const { data: existingInscripcion, error: checkInscripcionError } = await supabase
+      .from('INSCRIPCIONES')
+      .select('InscripcionID')
+      .eq('EstudianteID', estudianteId)
+      .eq('GrupoID', GrupoID)
+      .single();
+
+    if (checkInscripcionError && checkInscripcionError.code !== 'PGRST116') throw checkInscripcionError;
+    if (existingInscripcion) return res.status(409).json({ error: 'Ya estás inscrito en este grupo.' });
+
+    // Paso 3: Crear la inscripción
+    const { error: inscripcionError } = await supabase
+      .from('INSCRIPCIONES')
+      .insert({ EstudianteID: estudianteId, GrupoID: GrupoID });
+
+    if (inscripcionError) throw inscripcionError;
+
+    res.status(201).json({ message: '¡Inscripción realizada con éxito!' });
+  } catch (error) {
+    console.error('Error en el proceso de inscripción:', error.message);
+    res.status(500).json({ error: 'No se pudo completar la inscripción.' });
+  }
+});
+
+app.delete('/api/inscripciones/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { error } = await supabase
+      .from('INSCRIPCIONES')
+      .delete()
+      .eq('InscripcionID', id);
+
+    if (error) throw error;
+
+    res.json({ message: 'Inscripción cancelada exitosamente.' });
+  } catch (error) {
+    console.error('Error al cancelar la inscripción:', error.message);
+    res.status(500).json({ error: 'No se pudo cancelar la inscripción.' });
+  }
 });
 
 
