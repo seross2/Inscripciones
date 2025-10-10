@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "API para el sistema de inscripciones",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
@@ -10,13 +11,13 @@
   "author": "Sergio",
   "license": "ISC",
   "dependencies": {
-    "bootstrap": "^5.3.8",
+    "@supabase/supabase-js": "^2.75.0",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "pg": "^8.11.5"
+    "express": "^4.19.2"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.10"
   }
 }

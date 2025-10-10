@@ -1,0 +1,33 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+.asignatura-header {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+}
+
+.card.grupo-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: none;
+}
+
+.card.grupo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.profesor-info, .grupo-info {
+    font-size: 1rem;
+}
+
+.horarios-list {
+    font-size: 0.85rem;
+    list-style-type: none;
+    padding-left: 1rem;
+}
+.btn-add-horario {
+    font-size: 0.8rem;
+}

@@ -1,28 +1,33 @@
-body{
-    margin: 0%;
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-.BuscadorClass{
-    margin-left: 5px;
-    padding: auto;
-    width: 340px;
-    height: 250px  
-}
-.form-select{
-    margin: 5px 15px;
-    width: 80%;
+main {
+    flex: 1;
 }
 
-.form-control{
-    margin: 5px 15px;
-    width: 80%;
+.filters-sidebar {
+    background-color: #ffffff;
+    position: sticky;
+    top: 80px; /* Ajusta esto según la altura de tu navbar */
 }
 
-.btn{
-    margin-top: 25px;
-    margin-bottom: 25px;
+.card.course-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: none;
 }
-h3{
-    margin-top: 25px;
-    margin-bottom: 25px;
+
+.card.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.card-img-top {
+    height: 180px;
+    object-fit: cover; /* Asegura que la imagen cubra el espacio sin deformarse */
+    background-color: #e9ecef; /* Color de fondo para imágenes que no cargan */
 }

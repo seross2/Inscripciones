@@ -1,138 +1,296 @@
-import dotenv from "dotenv";
-import { createClient } from "@supabase/supabase-js";
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import { createClient } from '@supabase/supabase-js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcrypt';
 
-// --- Configuración de Variables de Entorno ---
+// Configuración para obtener __dirname en ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-// --- Inicialización de Express ---
+
+// The rest of your application code follows...
+
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
-// --- Middlewares ---
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// --- Servir archivos estáticos ---
-// Esto le dice a Express que la carpeta 'client' contiene archivos públicos.
-const clientPath = path.resolve(__dirname, '../client');
-app.use('/client', express.static(clientPath));
+// Servir archivos estáticos desde la carpeta 'client'
+app.use(express.static(path.join(__dirname, '..', 'client')));
 
-// --- Ruta Principal ---
-// Cuando alguien visite la raíz ('/'), le enviaremos el archivo HTML principal.
+// Check if environment variables are loaded
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+  console.error(
+    'Error: SUPABASE_URL and SUPABASE_ANON_KEY are required in your .env file'
+  );
+  process.exit(1); // Exit if credentials are not found
+}
+
+// Initialize Supabase client
+// This should now work correctly because dotenv has loaded the variables.
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
+
 app.get('/', (req, res) => {
-    res.sendFile(path.join(clientPath, 'Html', 'PantallaInicio.html'));
+  // Ahora, la ruta principal servirá tu archivo HTML
+  res.sendFile(path.join(__dirname, '..', 'client', 'Html', 'PantallaInicio.html'));
 });
 
-// --- Rutas para las otras páginas HTML ---
 app.get('/CursosLinea.Html', (req, res) => {
-    res.sendFile(path.join(clientPath, 'Html', 'CursosLinea.Html'));
+  res.sendFile(path.join(__dirname, '..', 'client', 'Html', 'CursosLinea.Html'));
 });
 
-// Asumo que tienes un Login.html y Register.html en la misma carpeta
+// --- Rutas para servir otras páginas HTML ---
+
 app.get('/Login.html', (req, res) => {
-    res.sendFile(path.join(clientPath, 'Html', 'Login.html'));
+  res.sendFile(path.join(__dirname, '..', 'client', 'Html', 'Login.html'));
 });
 
 app.get('/Register.html', (req, res) => {
-    res.sendFile(path.join(clientPath, 'Html', 'Register.html'));
+  res.sendFile(path.join(__dirname, '..', 'client', 'Html', 'Register.html'));
 });
 
-app.get('/GestionAdmin.html', (req, res) => {
-    res.sendFile(path.join(clientPath, 'Html', 'GestionAdmin.html'));
+app.get('/DetalleCurso.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'client', 'Html', 'DetalleCurso.html'));
 });
 
-// --- Conexión a Supabase (usando las variables de entorno) ---
-const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_KEY
-);
+// Example API route to fetch data from Supabase
+app.get('/test-supabase', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('your_table_name').select('*');
 
-if (supabase) {
-    console.log("✅ Cliente de Supabase inicializado.");
-} else {
-    console.error("❌ Error al inicializar el cliente de Supabase. Revisa tus variables de entorno.");
-    process.exit(1); // Salir si no se puede conectar
-}
+    if (error) {
+      throw error;
+    }
 
-// --- Rutas de la API ---
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching from Supabase:', error.message);
+    res.status(500).json({ error: 'Failed to fetch data from Supabase.' });
+  }
+});
 
-// GET /api/asignaturas - Obtener todas las asignaturas
+// --- ENDPOINT PARA ASIGNATURAS ---
+
 app.get('/api/asignaturas', async (req, res) => {
-    const { data, error } = await supabase.from('ASIGNATURAS').select('*');
-    if (error) {
-        console.error('Error al obtener asignaturas:', error);
-        return res.status(500).json({ message: 'Error interno del servidor', details: error.message });
+  try {
+    // Empezamos la consulta a la tabla 'ASIGNATURAS'
+    let query = supabase.from('ASIGNATURAS').select('*');
+
+    // Filtro de búsqueda por nombre
+    if (req.query.search) {
+      query = query.ilike('NombreAsignatura', `%${req.query.search}%`);
     }
-    res.status(200).json(data);
+
+    // Filtro por rango de créditos
+    if (req.query.creditos) {
+      const [min, max] = req.query.creditos.split('-');
+      query = query.gte('Creditos', parseInt(min)).lte('Creditos', parseInt(max));
+    }
+
+    // Filtro por rango de horas
+    if (req.query.horas) {
+      const [min, max] = req.query.horas.split('-');
+      query = query.gte('TotalHoras', parseInt(min)).lte('TotalHoras', parseInt(max));
+    }
+
+
+    // Ejecutamos la consulta final
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Database error:', error);
+      throw error;
+    }
+
+    res.json(data);
+
+  } catch (error) {
+    console.error('Error fetching asignaturas:', error.message);
+    res.status(500).json({ error: 'Failed to fetch asignaturas.' });
+  }
 });
 
-// POST /api/asignaturas - Crear una nueva asignatura
-app.post('/api/asignaturas', async (req, res) => {
-    const { nombre_asignatura, codigo_asignatura, creditos, total_horas, imagen_url, descripcion_curso } = req.body;
-    const { data, error } = await supabase
-        .from('ASIGNATURAS')
-        .insert([{ 
-            NombreAsignatura: nombre_asignatura, 
-            CodigoAsignatura: codigo_asignatura, 
-            Creditos: creditos, 
-            TotalHoras: total_horas,
-            Imagen: imagen_url,
-            Descripcion_Curso: descripcion_curso
-        }])
-        .select()
-        .single();
+app.get('/api/asignaturas/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // 1. Obtener los detalles de la asignatura
+    const { data: asignaturaData, error: asignaturaError } = await supabase
+      .from('ASIGNATURAS')
+      .select('*')
+      .eq('AsignaturaID', id)
+      .single();
 
-    if (error) {
-        console.error('Error al crear asignatura:', error);
-        if (error.code === '23505') { // Error de unicidad
-            return res.status(409).json({ message: `La asignatura con código '${codigo_asignatura}' ya existe.` });
-        }
-        return res.status(500).json({ message: 'Error interno del servidor', details: error.message });
-    }
-    res.status(201).json(data);
+    if (asignaturaError) throw asignaturaError;
+    if (!asignaturaData) return res.status(404).json({ error: 'Asignatura no encontrada.' });
+
+    // 2. Obtener los grupos y profesores asociados
+    const { data: gruposData, error: gruposError } = await supabase
+      .from('GRUPOS')
+      .select(`
+        *
+        ,PROFESORES ( Nombre, Apellido, Departamento )
+        ,HORARIOS ( * )
+        ,PERIODOS_ACADEMICOS ( * )
+      `)
+      .eq('AsignaturaID', id);
+
+    if (gruposError) throw gruposError;
+
+    res.json({ asignatura: asignaturaData, grupos: gruposData });
+
+  } catch (error) {
+    console.error(`Error fetching details for asignatura ${id}:`, error.message);
+    res.status(500).json({ error: 'Failed to fetch asignatura details.' });
+  }
 });
 
-// GET /api/profesores - Obtener todos los profesores
 app.get('/api/profesores', async (req, res) => {
-    const { data, error } = await supabase.from('PROFESORES').select('*');
-    if (error) {
-        console.error('Error al obtener profesores:', error);
-        return res.status(500).json({ message: 'Error interno del servidor', details: error.message });
-    }
-    res.status(200).json(data);
+  try {
+    const { data, error } = await supabase.from('PROFESORES').select('ProfesorID, Nombre, Apellido');
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch profesores.' });
+  }
 });
 
-// POST /api/profesores - Crear un nuevo profesor
-app.post('/api/profesores', async (req, res) => {
-    const { nombre, apellido, email, departamento } = req.body;
-    const { data, error } = await supabase
-        .from('PROFESORES')
-        .insert([{ 
-            Nombre: nombre, 
-            Apellido: apellido, 
-            Email: email, 
-            Departamento: departamento 
-        }])
-        .select()
-        .single();
+app.get('/api/periodos', async (req, res) => {
+  try {
+    // Asegúrate de tener una tabla 'PERIODOS_ACADEMICOS' con 'PeriodoID' y 'NombrePeriodo'
+    const { data, error } = await supabase.from('PERIODOS_ACADEMICOS').select('*');
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch periodos.' });
+  }
+});
 
-    if (error) {
-        console.error('Error al crear profesor:', error);
-        if (error.code === '23505') { // Error de unicidad (probablemente por el email)
-            return res.status(409).json({ message: `El email '${email}' ya está registrado.` });
-        }
-        return res.status(500).json({ message: 'Error interno del servidor', details: error.message });
+app.post('/api/horarios', async (req, res) => {
+  try {
+    const { DiaSemana, HoraInicio, HoraFin, Salon } = req.body;
+
+    // 1. Verificar si ya existe un horario que se cruce
+    const { data: existingHorarios, error: checkError } = await supabase
+      .from('HORARIOS')
+      .select('HorarioID')
+      .eq('DiaSemana', DiaSemana)
+      .eq('Salon', Salon)
+      .lt('HoraInicio', HoraFin) // El nuevo horario empieza antes de que el existente termine
+      .gt('HoraFin', HoraInicio); // El nuevo horario termina después de que el existente empiece
+
+    if (checkError) {
+      throw checkError;
     }
+
+    if (existingHorarios && existingHorarios.length > 0) {
+      // Si se encuentra un conflicto, se devuelve un error 409 (Conflict)
+      return res.status(409).json({ error: `Conflicto: El salón ${Salon} ya está ocupado en ese día y hora.` });
+    }
+
+    // 2. Si no hay conflictos, insertar el nuevo horario
+    const { data, error } = await supabase.from('HORARIOS').insert(req.body).select();
+    if (error) throw error;
+
     res.status(201).json(data);
+  } catch (error) {
+    console.error('Error creating horario:', error.message);
+    res.status(500).json({ error: 'No se pudo crear el horario.' });
+  }
 });
 
-// --- Iniciar el servidor ---
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+app.post('/api/grupos', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('GRUPOS').insert(req.body).select();
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (error) {
+    console.error('Error creating group:', error.message);
+    res.status(500).json({ error: 'Failed to create group.' });
+  }
+});
+
+
+// --- ENDPOINTS DE AUTENTICACIÓN ---
+
+// Endpoint para registrar un nuevo usuario
+app.post('/api/register', async (req, res) => {
+  const { nombre_usuario, email, password: plainTextPassword } = req.body;
+
+  if (!nombre_usuario || !email || !plainTextPassword) {
+    return res.status(400).json({ error: 'Nombre de usuario, email y contraseña son requeridos.' });
+  }
+
+  try {
+    // Codificar (hash) la contraseña de forma segura
+    const saltRounds = 10;
+    const contrasena_hash = await bcrypt.hash(plainTextPassword, saltRounds);
+
+    // Insertar el nuevo usuario directamente en tu tabla 'usuarios'
+    const { data, error } = await supabase
+      .from('usuarios')
+      .insert({
+        nombre_usuario,
+        email,
+        contrasena_hash, // Guardamos la contraseña codificada
+        rol_id: 1, // Rol por defecto 'cliente'
+      })
+      .select();
+
+    if (error) {
+      // Manejar errores comunes como email duplicado
+      if (error.code === '23505') {
+        return res.status(409).json({ error: 'El email o nombre de usuario ya existe.' });
+      }
+      throw error;
+    }
+
+    res.status(201).json({ message: '¡Usuario registrado exitosamente! Ahora puedes iniciar sesión.' });
+  } catch (error) {
+    console.error('Error en el registro:', error.message);
+    res.status(500).json({ error: 'No se pudo registrar el usuario.' });
+  }
+});
+
+// Endpoint para iniciar sesión
+app.post('/api/login', async (req, res) => {
+  const { email, password: plainTextPassword } = req.body;
+
+  if (!email || !plainTextPassword) {
+    return res.status(400).json({ error: 'Email y contraseña son requeridos.' });
+  }
+
+  // 1. Buscar al usuario por su email en tu tabla 'usuarios'
+  const { data: users, error } = await supabase.from('usuarios').select('*').eq('email', email);
+
+  if (error || !users || users.length === 0) {
+    return res.status(401).json({ error: 'Credenciales inválidas.' });
+  }
+
+  const user = users[0];
+
+  // 2. Comparar la contraseña del formulario con la contraseña codificada en la base de datos
+  const passwordMatches = await bcrypt.compare(plainTextPassword, user.contrasena_hash);
+
+  if (!passwordMatches) {
+    return res.status(401).json({ error: 'Credenciales inválidas.' });
+  }
+
+  // Si las contraseñas coinciden, el login es exitoso.
+  // Creamos una "sesión" simple para el frontend.
+  const session = { user: { id: user.usuario_id, email: user.email, nombre: user.nombre_usuario } };
+  res.status(200).json({ message: 'Login exitoso', session: session });
+});
+
+
+app.listen(port, () => {
+  const url = `http://localhost:${port}`;
+  console.log(`🚀 Server ready at: ${url}`);
 });

@@ -26,7 +26,8 @@
                         <img src="https://cdn-icons-png.flaticon.com/512/1000/1000946.png" alt="Logo" width="72" height="72">
                         <h1 class="h3 mb-3 mt-3 fw-normal">Crear una Cuenta</h1>
                     </div>
-                    <form>
+                    <form id="form-register">
+                        <p id="mensaje-error" class="text-danger"></p> <!-- Para mostrar errores -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <div class="form-floating">
@@ -36,14 +37,10 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <div class="form-floating">
-                                    <input type="text" class="form-control" id="floatingLastName" placeholder="Pérez" required>
+                                    <input type="text" class="form-control" id="floatingLastName" placeholder="Pérez">
                                     <label for="floatingLastName">Apellidos</label>
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input type="tel" class="form-control" id="floatingPhone" placeholder="3001234567" required>
-                            <label for="floatingPhone">Teléfono</label>
                         </div>
                         <div class="form-floating mb-3">
                             <input type="email" class="form-control" id="floatingInput" placeholder="nombre@ejemplo.com" required>
@@ -64,6 +61,8 @@
             </div>
         </div>
     </div>
+    <!-- Incluimos el script para manejar el registro -->
+    <script src="/Js/register.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

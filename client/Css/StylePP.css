@@ -1,57 +1,51 @@
-
-.Info {
-    /* Define el ancho del bloque de texto y lista.
-       En pantallas grandes, ocupará aproximadamente la mitad del espacio. */
-    flex: 1 1 45%; 
-    padding-right: 20px; /* Espacio entre el texto y el video */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa; /* Un fondo blanco hueso, más suave que el blanco puro */
+    color: #212529; /* Texto oscuro estándar para máxima legibilidad */
 }
 
-.Info p {
-    /* Mejora la legibilidad del texto */
-    margin-bottom: 20px;
-    line-height: 1.6;
-    color: #333;
+main {
+    flex: 1;
 }
 
-.Info ul {
-    list-style: none;
-    padding-left: 0;
+/* Estilo para la barra de navegación */
+.navbar-brand {
+    font-weight: 600; /* Letra más gruesa para el logo */
 }
 
-.Info ul li {
-    /* Íconos o estilo personalizado para la lista */
-    padding-left: 20px;
-    margin-bottom: 8px;
-    position: relative;
-    /* Opcional: Agregar un icono (checkmark) como estilo de lista */
-    /* Puedes reemplazar esto con un icono de Bootstrap o Font Awesome si los usas */
-    /* content: "✅"; es una alternativa si no usas librerías de iconos */
+/* Estilo para el encabezado principal */
+.hero-header {
+    padding: 4rem 0;
 }
 
-.Video {
-    /* Define el ancho del bloque de video.
-       En pantallas grandes, ocupará aproximadamente la mitad del espacio. */
-    flex: 1 1 50%; 
-    min-width: 300px; /* Asegura que no se haga demasiado pequeño */
+.hero-header h1 {
+    font-weight: 700; /* Título más impactante */
 }
 
-/* ---------------------------------------------------- */
-/* Media Query para responsividad (cuando los elementos se apilan) */
-/* ---------------------------------------------------- */
+/* Estilo para el contenedor del video */
+.video-wrapper {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.video-wrapper:hover {
+    transform: scale(1.03);
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
+
+/* Estilo para la sección de contacto */
+.contact-section {
+    background-color: #ffffff; /* Fondo blanco para destacar la sección */
+    border-top: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.btn-primary, .btn-outline-primary {
+    transition: all 0.3s ease; /* Transición suave para los botones */
+    font-weight: 600;
+}
 
 @media (max-width: 992px) {
-    .Diseño {
-        flex-direction: column; /* Apila los elementos verticalmente en pantallas pequeñas */
-        padding: 30px 15px;
-    }
-    
-    .Info {
-        flex-basis: 100%; /* El bloque de texto ocupa todo el ancho */
-        padding-right: 0;
-        margin-bottom: 25px; /* Espacio entre el texto y el video cuando están apilados */
-    }
-
-    .Video {
-        flex-basis: 100%; /* El video también ocupa todo el ancho */
+    .info-text {
+        margin-bottom: 2rem;
     }
 }
