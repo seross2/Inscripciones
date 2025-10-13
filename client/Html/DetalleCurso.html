@@ -20,13 +20,14 @@
         <div class="container">
             <a class="navbar-brand" href="/">
                 <img src="https://cdn-icons-png.flaticon.com/512/1000/1000946.png" alt="Logo" width="30" height="30" class="d-inline-block align-top">
-                Inscripciones
+                EDEM
             </a>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link" href="/CursosLinea.Html">Cursos en Línea</a></li>
                     <li id="nav-mis-cursos" class="nav-item d-none"><a class="nav-link" href="/MisCursos.html">Mis Cursos</a></li>
+                    <li id="nav-portal-pagos" class="nav-item d-none"><a class="nav-link" href="/PortalPagos.html">Comprar Créditos</a></li>
                 </ul>
                 <!-- Para usuarios no logueados -->
                 <div id="nav-logged-out" class="d-flex">
@@ -35,6 +36,7 @@
                 </div>
                 <!-- Para usuarios logueados -->
                 <div id="nav-logged-in" class="d-flex align-items-center d-none">
+                    <img id="nav-user-avatar" src="" alt="Avatar" class="rounded-circle me-2" width="32" height="32" style="object-fit: cover;">
                     <span class="navbar-text me-3">Hola, <strong id="user-name"></strong></span>
                     <button id="logout-button" class="btn btn-danger">Cerrar Sesión</button>
                 </div>
@@ -53,6 +55,12 @@
             </div>
         </section>
 
+        <!-- Sección de Descripción del Curso -->
+        <section id="descripcion-curso" class="mb-5 bg-light p-4 rounded">
+            <h3 class="mb-3">Acerca de este curso</h3>
+            <p id="texto-descripcion" class="lead text-muted">Cargando descripción...</p>
+        </section>
+
         <!-- Sección de Grupos Existentes -->
         <section id="grupos-existentes" class="mb-5">
             <h2 class="mb-4">Grupos Disponibles</h2>
@@ -64,7 +72,7 @@
 
     <!-- Modal para Inscripción -->
     <div class="modal fade" id="modal-inscripcion" tabindex="-1" aria-labelledby="inscripcionModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="inscripcionModalLabel">Formulario de Inscripción</h5>

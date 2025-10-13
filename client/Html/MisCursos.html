@@ -20,13 +20,14 @@
         <div class="container">
             <a class="navbar-brand" href="/">
                 <img src="https://cdn-icons-png.flaticon.com/512/1000/1000946.png" alt="Logo" width="30" height="30" class="d-inline-block align-top">
-                Inscripciones
+                EDEM
             </a>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link" href="/CursosLinea.Html">Cursos en Línea</a></li>
                     <li id="nav-mis-cursos" class="nav-item d-none"><a class="nav-link active" href="/MisCursos.html">Mis Cursos</a></li>
+                    <li id="nav-portal-pagos" class="nav-item d-none"><a class="nav-link" href="/PortalPagos.html">Comprar Créditos</a></li>
                 </ul>
                 <!-- Para usuarios no logueados -->
                 <div id="nav-logged-out" class="d-flex">
@@ -35,6 +36,7 @@
                 </div>
                 <!-- Para usuarios logueados -->
                 <div id="nav-logged-in" class="d-flex align-items-center d-none">
+                    <img id="nav-user-avatar" src="" alt="Avatar" class="rounded-circle me-2" width="32" height="32" style="object-fit: cover;">
                     <span class="navbar-text me-3">Hola, <strong id="user-name"></strong></span>
                     <button id="logout-button" class="btn btn-danger">Cerrar Sesión</button>
                 </div>
@@ -86,6 +88,17 @@
                 <p class="lead">Aún no te has inscrito a ningún curso.</p>
             </div>
         </section>
+
+        <!-- Sección de Pagos -->
+        <section id="pagos-estudiante" class="mt-5">
+            <h2 class="mb-4">Historial de Pagos</h2>
+            <div id="lista-pagos-container">
+                <!-- La tabla de pagos se cargará aquí -->
+            </div>
+            <div id="no-pagos" class="text-center p-5" style="display: none;">
+                <p class="lead">No tienes pagos registrados.</p>
+            </div>
+        </section>
     </main>
 
     <!-- Modal para Confirmar Cancelación -->
@@ -103,6 +116,28 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" id="btn-confirmar-cancelacion" class="btn btn-danger">Sí, Cancelar Inscripción</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Cambiar Avatar -->
+    <div class="modal fade" id="modal-avatar" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="avatarModalLabel">Cambiar Avatar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-avatar-upload">
+                        <div id="avatar-upload-mensaje"></div>
+                        <div class="mb-3">
+                            <label for="avatar-file-input" class="form-label">Selecciona una imagen (JPG, PNG)</label>
+                            <input class="form-control" type="file" id="avatar-file-input" accept="image/png, image/jpeg">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Subir y Guardar</button>
+                    </form>
                 </div>
             </div>
         </div>

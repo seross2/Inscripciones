@@ -20,7 +20,7 @@
         <div class="container">
             <a class="navbar-brand" href="/">
                 <img src="https://cdn-icons-png.flaticon.com/512/1000/1000946.png" alt="Logo" width="30" height="30" class="d-inline-block align-top">
-                Inscripciones
+                EDEM
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -30,6 +30,7 @@
                     <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link active" href="/CursosLinea.Html">Cursos en Línea</a></li>
                     <li id="nav-mis-cursos" class="nav-item d-none"><a class="nav-link" href="/MisCursos.html">Mis Cursos</a></li>
+                    <li id="nav-portal-pagos" class="nav-item d-none"><a class="nav-link" href="/PortalPagos.html">Comprar Créditos</a></li>
                 </ul>
                 <!-- Para usuarios no logueados -->
                 <div id="nav-logged-out" class="d-flex">
@@ -38,6 +39,7 @@
                 </div>
                 <!-- Para usuarios logueados -->
                 <div id="nav-logged-in" class="d-flex align-items-center d-none">
+                    <img id="nav-user-avatar" src="" alt="Avatar" class="rounded-circle me-2" width="32" height="32" style="object-fit: cover;">
                     <span class="navbar-text me-3">Hola, <strong id="user-name"></strong></span>
                     <button id="logout-button" class="btn btn-danger">Cerrar Sesión</button>
                 </div>

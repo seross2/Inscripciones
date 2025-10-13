@@ -1,33 +1,136 @@
+:root {
+    --blue-lagoon-50: #f0fbfb;
+    --blue-lagoon-100: #d8f4f5;
+    --blue-lagoon-200: #b5e8ec;
+    --blue-lagoon-300: #82d6de;
+    --blue-lagoon-400: #48bbc8;
+    --blue-lagoon-500: #2c9fae;
+    --blue-lagoon-600: #288395;
+    --blue-lagoon-700: #266878;
+    --blue-lagoon-800: #275763;
+    --blue-lagoon-900: #244955;
+    --blue-lagoon-950: #132f39;
+    --bs-primary-rgb: 44, 159, 174;
+}
+
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #f8f9fa;
+    background-color: var(--blue-lagoon-50);
+    color: var(--blue-lagoon-900);
+    animation: fadeInAnimation ease 0.8s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fadeInAnimation {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Estilos de Navegación --- */
+.navbar-brand {
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.nav-link {
+    transition: color 0.3s ease;
+}
+
+.navbar-brand:hover, .nav-link:hover {
+    color: var(--blue-lagoon-500) !important;
+}
+
+/* --- Controles de Filtro --- */
+.filtros-container {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: slideInFromTop 0.6s ease-out forwards 0.2s;
+}
+
+.form-control, .form-select {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--blue-lagoon-400);
+    box-shadow: 0 0 0 0.25rem rgba(44, 159, 174, 0.25);
+}
+
+/* --- Tarjetas de Asignatura --- */
+.asignatura-card {
+    border: 1px solid var(--blue-lagoon-200);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff;
+}
+
+.asignatura-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.asignatura-card .card-body {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    height: 100%;
 }
 
-main {
-    flex: 1;
+.asignatura-card .card-title {
+    color: var(--blue-lagoon-700);
+    font-weight: 600;
 }
 
-.filters-sidebar {
-    background-color: #ffffff;
-    position: sticky;
-    top: 80px; /* Ajusta esto según la altura de tu navbar */
+.asignatura-card .badge {
+    font-size: 0.8rem;
 }
 
-.card.course-card {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    border: none;
+.asignatura-card .btn-primary {
+    margin-top: auto; /* Empuja el botón al final de la tarjeta */
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.card.course-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+.asignatura-card .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.card-img-top {
-    height: 180px;
-    object-fit: cover; /* Asegura que la imagen cubra el espacio sin deformarse */
-    background-color: #e9ecef; /* Color de fondo para imágenes que no cargan */
+/* --- Animaciones --- */
+@keyframes slideInFromTop {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
+
+@keyframes slideInFromBottom {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Animación de carga para las tarjetas --- */
+.loaded .col {
+    opacity: 0; /* Inicia invisible */
+    transform: translateY(20px);
+    animation: slideInFromBottom 0.5s ease-out forwards;
+}
+
+/*
+  El hover en .asignatura-card ya está definido arriba,
+  así que las tarjetas tendrán la animación de carga y
+  también reaccionarán al pasar el cursor sobre ellas.
+*/

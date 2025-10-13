@@ -1,51 +1,9 @@
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #f8f9fa; /* Un fondo blanco hueso, más suave que el blanco puro */
-    color: #212529; /* Texto oscuro estándar para máxima legibilidad */
+    background-color: #f8f9fa;
 }
 
-main {
-    flex: 1;
-}
-
-/* Estilo para la barra de navegación */
-.navbar-brand {
-    font-weight: 600; /* Letra más gruesa para el logo */
-}
-
-/* Estilo para el encabezado principal */
-.hero-header {
-    padding: 4rem 0;
-}
-
-.hero-header h1 {
-    font-weight: 700; /* Título más impactante */
-}
-
-/* Estilo para el contenedor del video */
-.video-wrapper {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.video-wrapper:hover {
-    transform: scale(1.03);
-    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
-}
-
-/* Estilo para la sección de contacto */
-.contact-section {
-    background-color: #ffffff; /* Fondo blanco para destacar la sección */
-    border-top: 1px solid #dee2e6;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.btn-primary, .btn-outline-primary {
-    transition: all 0.3s ease; /* Transición suave para los botones */
-    font-weight: 600;
-}
-
-@media (max-width: 992px) {
-    .info-text {
-        margin-bottom: 2rem;
-    }
+.card {
+    border: none;
+    border-radius: 15px;
 }

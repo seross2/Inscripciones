@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inscripcionForm = document.getElementById('form-inscripcion');
     const inscripcionGrupoIdInput = document.getElementById('inscripcion-grupo-id');
     const inscripcionFormMensaje = document.getElementById('inscripcion-form-mensaje');
+    const textoDescripcion = document.getElementById('texto-descripcion');
     const loginRequeridoModal = new bootstrap.Modal(document.getElementById('modal-login-requerido'));
 
 
@@ -43,6 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
+
+            // Mostrar la descripción del curso
+            textoDescripcion.textContent = asignatura.Descripcion_Curso || 'Este curso no tiene una descripción disponible.';
 
             // Mostrar grupos existentes
             gruposContainer.innerHTML = '';
@@ -115,9 +119,10 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const session = JSON.parse(sessionData);
                 if (session && session.user) {
-                    const [nombre, ...apellido] = session.user.nombre.split(' ');
-                    document.getElementById('estudiante-nombre').value = nombre || '';
-                    document.getElementById('estudiante-apellido').value = apellido.join(' ') || '';
+                    const nombreCompleto = session.user.nombre_usuario || '';
+                    const partesNombre = nombreCompleto.split(' ');
+                    document.getElementById('estudiante-nombre').value = partesNombre[0] || '';
+                    document.getElementById('estudiante-apellido').value = partesNombre.slice(1).join(' ') || '';
                     document.getElementById('estudiante-email').value = session.user.email || '';
                 }
             } catch (e) {
@@ -131,39 +136,52 @@ document.addEventListener('DOMContentLoaded', () => {
     // Manejar el envío del formulario de inscripción
     inscripcionForm.addEventListener('submit', async (event) => {
         event.preventDefault();
+        const submitButton = inscripcionForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...`;
+
         inscripcionFormMensaje.innerHTML = '';
 
+        const session = JSON.parse(localStorage.getItem('app.session'));
         const formData = {
+            // Datos del formulario
             Nombre: document.getElementById('estudiante-nombre').value,
             Apellido: document.getElementById('estudiante-apellido').value,
             Email: document.getElementById('estudiante-email').value,
             Telefono: document.getElementById('estudiante-telefono').value,
             FechaNacimiento: document.getElementById('estudiante-fecha-nacimiento').value,
-            GrupoID: parseInt(inscripcionGrupoIdInput.value)
+            GrupoID: parseInt(inscripcionGrupoIdInput.value),
+            usuario_id: session.user.id // ID del usuario para descontar créditos
         };
 
+        let response; // Definimos response fuera del try para acceder a él en el catch
         try {
-            const response = await fetch('/api/inscripciones', {
+            response = await fetch('/api/inscripciones', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
 
             const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.error || 'No se pudo completar la inscripción.');
-            }
+            if (!response.ok) throw result; // Lanzamos el objeto de error completo
 
             inscripcionFormMensaje.innerHTML = `<div class="alert alert-success">${result.message}</div>`;
             setTimeout(() => {
                 inscripcionModal.hide();
                 inscripcionForm.reset();
-                cargarDetalles(); // ¡Aquí se refresca la información de los grupos!
+                window.location.href = '/MisCursos.html'; // Redirigir a Mis Cursos para ver el cambio
             }, 2000);
 
         } catch (error) {
-            inscripcionFormMensaje.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+            let errorMessage = error.error || 'No se pudo completar la inscripción.';
+            // Si el error es por créditos insuficientes (código 402), mostramos un mensaje especial.
+            if (response && response.status === 402) {
+                errorMessage = `${errorMessage} <br><strong><a href="/PortalPagos.html" class="alert-link">Haz clic aquí para comprar más créditos.</a></strong>`;
+            }
+            inscripcionFormMensaje.innerHTML = `<div class="alert alert-danger">${errorMessage}</div>`;
+        } finally {
+            submitButton.disabled = false;
+            submitButton.innerHTML = 'Confirmar Inscripción';
         }
     });
 

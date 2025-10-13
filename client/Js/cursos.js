@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div class="card-footer bg-white border-top-0">
-                        <a href="/DetalleCurso.html?id=${curso.AsignaturaID}" target="_blank" class="btn btn-primary w-100">Ver Detalles</a>
+                        <a href="/DetalleCurso.html?id=${curso.AsignaturaID}" class="btn btn-primary w-100">Ver Detalles</a>
                     </div>
                 </div>
             </div>

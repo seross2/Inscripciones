@@ -3,11 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const navMisCursos = document.getElementById('nav-mis-cursos');
         const navLoggedOut = document.getElementById('nav-logged-out');
         const navLoggedIn = document.getElementById('nav-logged-in');
+        const navPortalPagos = document.getElementById('nav-portal-pagos');
         const userNameSpan = document.getElementById('user-name');
         const logoutButton = document.getElementById('logout-button');
+        const navUserAvatar = document.getElementById('nav-user-avatar');
 
         // Si alguno de los elementos principales no existe, no hacemos nada.
-        if (!navLoggedOut || !navLoggedIn || !navMisCursos) {
+        if (!navLoggedOut || !navLoggedIn || !navMisCursos || !navPortalPagos) {
             return;
         }
 
@@ -18,12 +20,17 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const session = JSON.parse(sessionData);
 
-                if (session && session.user && userNameSpan) {
+                if (session && session.user && userNameSpan && navUserAvatar) {
                     // ESTADO: Usuario Logueado
                     navLoggedOut.classList.add('d-none'); // Ocultar botones de login/registro
                     navLoggedIn.classList.remove('d-none'); // Mostrar "Hola, [usuario]" y "Cerrar Sesión"
                     navMisCursos.classList.remove('d-none'); // Mostrar "Mis Cursos"
-                    userNameSpan.textContent = session.user.nombre;
+                    navPortalPagos.classList.remove('d-none'); // Mostrar "Comprar Créditos"
+                    userNameSpan.textContent = session.user.nombre_usuario;
+
+                    // Asignar el avatar
+                    const avatarDefault = 'https://www.shutterstock.com/image-vector/user-login-authenticate-icon-human-600nw-1365533969.jpg';
+                    navUserAvatar.src = session.user.avatar || avatarDefault;
                 } else {
                     // ESTADO: Sesión inválida o corrupta
                     throw new Error("La sesión guardada no es válida.");
@@ -35,12 +42,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 navLoggedOut.classList.remove('d-none');
                 navLoggedIn.classList.add('d-none');
                 navMisCursos.classList.add('d-none');
+                navPortalPagos.classList.add('d-none');
             }
         } else {
             // ESTADO: No Logueado (no hay sesión)
             navLoggedOut.classList.remove('d-none');
             navLoggedIn.classList.add('d-none');
             navMisCursos.classList.add('d-none');
+            navPortalPagos.classList.add('d-none');
         }
 
         // Añadir funcionalidad al botón de cerrar sesión

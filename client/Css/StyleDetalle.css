@@ -1,22 +1,67 @@
+:root {
+    --blue-lagoon-50: #f0fbfb;
+    --blue-lagoon-100: #d8f4f5;
+    --blue-lagoon-200: #b5e8ec;
+    --blue-lagoon-300: #82d6de;
+    --blue-lagoon-400: #48bbc8;
+    --blue-lagoon-500: #2c9fae;
+    --blue-lagoon-600: #288395;
+    --blue-lagoon-700: #266878;
+    --blue-lagoon-800: #275763;
+    --blue-lagoon-900: #244955;
+    --blue-lagoon-950: #132f39;
+}
+
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #f8f9fa;
-    color: #212529;
+    background-color: var(--blue-lagoon-50);
+    color: var(--blue-lagoon-900);
+    animation: fadeInAnimation ease 0.8s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fadeInAnimation {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+     }
+}
+
+.navbar-brand {
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.nav-link {
+    transition: color 0.3s ease;
+}
+
+.navbar-brand:hover, .nav-link:hover {
+    color: var(--blue-lagoon-500) !important;
 }
 
 .asignatura-header {
     background-color: #ffffff;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--blue-lagoon-200);
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: slideInFromTop 0.6s ease-out forwards;
+    animation-delay: 0.2s;
 }
 
 .card.grupo-card {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     border: none;
 }
 
 .card.grupo-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
 }
 
 .profesor-info, .grupo-info {
@@ -28,6 +73,39 @@ body {
     list-style-type: none;
     padding-left: 1rem;
 }
+
+.cupos-disponibles {
+    color: var(--blue-lagoon-600);
+    font-weight: 500;
+}
+
+.cupos-agotados {
+    color: #b04040; /* Un rojo más oscuro para 'agotado' */
+    font-weight: 500;
+}
+
 .btn-add-horario {
     font-size: 0.8rem;
+}
+
+.card.grupo-card .btn-primary {
+    background-color: var(--blue-lagoon-500);
+    border-color: var(--blue-lagoon-500);
+}
+
+/* Animación para modales */
+.modal.fade .modal-dialog {
+    transform: scale(0.9);
+    transition: transform 0.3s ease-out;
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1);
+}
+
+@keyframes slideInFromTop {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
