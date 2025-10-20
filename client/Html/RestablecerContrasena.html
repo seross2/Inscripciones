@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restablecer Contraseña - ENEM</title>
+    <!-- Google Fonts y Bootstrap -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Ícono de la pestaña -->
+    <link rel="icon" href="/assets/LOGO ICON.jpg" type="image/jpeg">
+    <!-- Estilos personalizados (reutilizamos los de recuperar) -->
+    <link rel="stylesheet" href="/Css/StyleRecuperar.css">
+</head>
+<body>
+    <div class="recover-container">
+        <div class="card shadow-lg recover-card">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <img src="https://cdn-icons-png.flaticon.com/512/1000/1000946.png" alt="Logo" width="50" height="50">
+                    <h1 class="h3 mt-2 mb-3 fw-normal">Crear Nueva Contraseña</h1>
+                    <p class="text-muted">Ingresa tu nueva contraseña. Debe ser segura y fácil de recordar.</p>
+                </div>
+
+                <!-- Contenedor para mensajes -->
+                <div id="mensaje-container" class="mb-3"></div>
+
+                <form id="form-restablecer">
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="floatingPassword" placeholder="Nueva Contraseña" required>
+                        <label for="floatingPassword">Nueva Contraseña</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="floatingConfirmPassword" placeholder="Confirmar Contraseña" required>
+                        <label for="floatingConfirmPassword">Confirmar Contraseña</label>
+                    </div>
+                    <button class="w-100 btn btn-lg btn-primary" type="submit">Guardar Nueva Contraseña</button>
+                </form>
+
+                <a href="/Login.html" class="form-text text-center d-block mt-4">Volver a Iniciar Sesión</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incluimos la librería de Supabase para el cliente -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/Js/restablecer-contrasena.js"></script>
+</body>
+</html>

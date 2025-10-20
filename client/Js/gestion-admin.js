@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const profesoresBody = document.getElementById('tabla-profesores-body');
     const gruposBody = document.getElementById('tabla-grupos-body');
     const horariosBody = document.getElementById('tabla-horarios-body');
+    const usuariosBody = document.getElementById('tabla-usuarios-body');
 
     // --- MODALES ---
     const asignaturaModal = new bootstrap.Modal(document.getElementById('modal-asignatura'));
@@ -282,12 +283,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- GESTIÓN DE USUARIOS ---
+    const cargarUsuarios = async () => {
+        try {
+            const usuarios = await fetchData('/api/usuarios');
+            usuariosBody.innerHTML = '';
+            usuarios.forEach(user => {
+                usuariosBody.innerHTML += `
+                    <tr>
+                        <td>${user.usuario_id}</td>
+                        <td>${user.nombre_usuario}</td>
+                        <td>${user.email}</td>
+                        <td><span class="badge bg-secondary">${user.roles.nombre_rol}</span></td>
+                        <td>${user.Creditos || 0}</td>
+                        <td>${new Date(user.fecha_registro).toLocaleDateString()}</td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            console.error(error);
+            usuariosBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${error.message}</td></tr>`;
+        }
+    };
+
     // --- Carga Inicial ---
     const init = () => {
         cargarAsignaturas();
         cargarProfesores();
         cargarGrupos();
         cargarHorarios();
+        cargarUsuarios();
     };
 
     init();

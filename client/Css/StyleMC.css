@@ -1,3 +1,4 @@
+/* Estilos para la página "Mis Cursos" */
 body {
     font-family: 'Poppins', sans-serif;
     background-color: #f8f9fa;
@@ -6,6 +7,38 @@ body {
     min-height: 100vh;
 }
 
-main {
-    flex: 1;
+/* Estilo para el nombre de la institución en la barra de navegación */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.7rem;
+    background: linear-gradient(45deg, #0052D4, #4364f7, #65C7F7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+}
+
+.profile-card .card-body {
+    gap: 1.5rem;
+}
+
+.inscription-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.inscription-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* --- Mejoras para Móviles --- */
+@media (max-width: 767.98px) {
+    /* Los estilos responsivos para el perfil ya se aplicaron con clases de Bootstrap en el JS, 
+       pero si tuvieras estilos fijos aquí, los modificarías. */
+
+    /* Ajusta los filtros para que no se sientan tan apretados */
+    #inscripciones-estudiante .row.g-3 {
+        margin-left: -8px;
+        margin-right: -8px;
+    }
 }

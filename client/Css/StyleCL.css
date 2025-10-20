@@ -1,47 +1,63 @@
-/* --- Animación para las tarjetas de curso --- */
-
-/* Preparamos la tarjeta para una transición suave */
-.course-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* Estilos para la página de Cursos en Línea */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-/* Definimos el estado de la tarjeta cuando el mouse está encima */
-.course-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15) !important; /* Usamos !important para sobreescribir el 'shadow-sm' de Bootstrap */
+/* Estilo para el nombre de la institución en la barra de navegación */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.7rem;
+    background: linear-gradient(45deg, #0052D4, #4364f7, #65C7F7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
 }
 
-/* --- Estilos para la Notificación de Video --- */
+.filters-sidebar {
+    background-color: #fff;
+}
+
+/* Estilos para la notificación de video */
 .video-notification-container {
     position: fixed;
     bottom: 20px;
-    left: 20px;
-    width: 320px;
-    background-color: white;
-    border-radius: 0.5rem;
+    right: 20px;
+    width: 350px;
     z-index: 1050;
-    overflow: hidden;
-    /* Inicialmente oculta y fuera de la pantalla */
-    transform: translateX(-150%);
+    background-color: #fff;
+    border-radius: 0.5rem;
+    /* Oculto por defecto para transiciones suaves */
     opacity: 0;
-    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, visibility 0.3s;
 }
 
 .video-notification-container.show {
-    transform: translateX(0);
     opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
 }
 
-.video-notification-container .btn-close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    z-index: 10;
-    background-color: rgba(255, 255, 255, 0.7);
-    border-radius: 50%;
+.video-notification-content {
+    padding: 1rem;
 }
 
 .video-notification-text {
-    padding: 0.75rem 1rem;
-    background-color: #f1f1f1;
+    padding-top: 0.75rem;
+}
+
+/* --- Mejoras para Móviles --- */
+@media (max-width: 767.98px) {
+    .video-notification-container {
+        width: 90%; /* Ocupa casi todo el ancho */
+        bottom: 10px;
+        left: 5%; /* Centrado horizontalmente */
+        right: 5%;
+    }
 }

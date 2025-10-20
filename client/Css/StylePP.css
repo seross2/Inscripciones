@@ -1,66 +1,74 @@
-/* Estilos para la página principal */
+/* Estilos generales y para la página de inicio */
 body {
     font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.7rem; /* Aumentamos ligeramente el tamaño */
+    /* Aplicamos un gradiente de color al texto */
+    background: linear-gradient(45deg, #0052D4, #4364f7, #65C7F7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
 }
 
 .hero-header {
-    background: #f8f9fa;
     padding: 4rem 0;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.info-text {
-    padding-right: 2rem;
 }
 
 .video-wrapper {
-    border: 5px solid white;
+    position: relative;
 }
 
 .contact-section {
-    background-color: #f8f9fa;
+    background-color: #e9ecef;
 }
 
-/* --- Estilos para la Notificación de Video --- */
+/* Estilos para la notificación de video */
 .video-notification-container {
     position: fixed;
     bottom: 20px;
-    left: 20px;
-    width: 320px;
-    background-color: white;
-    border-radius: 0.5rem;
+    right: 20px;
+    width: 350px;
     z-index: 1050;
-    overflow: hidden;
-    /* Inicialmente oculta y fuera de la pantalla */
-    transform: translateX(-150%);
+    background-color: #fff;
+    border-radius: 0.5rem;
+    /* Oculto por defecto para transiciones suaves */
     opacity: 0;
-    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, visibility 0.3s;
 }
 
 .video-notification-container.show {
-    transform: translateX(0);
     opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
 }
-
-.video-notification-container .btn-close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    z-index: 10;
-    background-color: rgba(255, 255, 255, 0.7);
-    border-radius: 50%;
-}
-
 .video-notification-content {
-    display: flex;
-    flex-direction: column;
-}
-
-.video-wrapper-notification video {
-    display: block;
+    padding: 1rem;
 }
 
 .video-notification-text {
-    padding: 0.75rem 1rem;
-    background-color: #f1f1f1;
+    padding-top: 0.75rem;
+}
+
+/* --- Mejoras para Móviles --- */
+@media (max-width: 767.98px) {
+    .hero-header h1 {
+        font-size: 2.5rem; /* Título más pequeño en móviles */
+    }
+
+    .video-notification-container {
+        width: 90%; /* Ocupa casi todo el ancho */
+        bottom: 10px;
+        left: 5%; /* Centrado horizontalmente */
+        right: 5%;
+    }
 }

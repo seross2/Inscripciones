@@ -1,87 +1,85 @@
+/* Estilos para el panel de administración */
 body {
     font-family: 'Poppins', sans-serif;
     background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Estilo para el nombre de la institución en la barra de navegación */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.7rem;
+    background: linear-gradient(45deg, #0052D4, #4364f7, #65C7F7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
 }
 
 .gestion-header {
-    background: linear-gradient(to right, #0d6efd, #0dcaf0);
+    background: linear-gradient(to right, #0052D4, #65C7F7, #9CECFB);
     color: white;
-    padding: 3rem 0;
+    padding: 3rem 1rem;
     margin-bottom: 2rem;
 }
 
-.gestion-header h1 {
-    font-weight: 700;
-}
-
-.nav-pills .nav-link {
-    color: #495057;
-    font-weight: 600;
-}
-
-.nav-pills .nav-link.active {
-    background-color: #0d6efd;
-    color: white;
-}
-
-.card-header {
-    font-weight: 600;
-}
-
-.table-hover tbody tr:hover {
-    background-color: #e9ecef;
-}
-
-.btn-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-}
-
-.modal-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.form-label {
-    font-weight: 600;
-}
-
-/* Estilo para los botones de acción en las tablas */
-.action-buttons .btn {
-    margin-right: 5px;
-}
-
-/* --- Estilos para la Notificación de Video --- */
 .video-notification-container {
     position: fixed;
     bottom: 20px;
-    left: 20px;
-    width: 320px;
-    background-color: white;
-    border-radius: 0.5rem;
+    right: 20px;
+    width: 350px;
     z-index: 1050;
-    overflow: hidden;
-    /* Inicialmente oculta y fuera de la pantalla */
-    transform: translateX(-150%);
+    background-color: #fff;
+    border-radius: 0.5rem;
+    /* Oculto por defecto para transiciones suaves */
     opacity: 0;
-    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, visibility 0.3s;
 }
 
 .video-notification-container.show {
-    transform: translateX(0);
     opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
 }
 
-.video-notification-container .btn-close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    z-index: 10;
-    background-color: rgba(255, 255, 255, 0.7);
-    border-radius: 50%;
+.video-notification-content {
+    padding: 1rem;
 }
 
 .video-notification-text {
-    padding: 0.75rem 1rem;
-    background-color: #f1f1f1;
+    padding-top: 0.75rem;
+}
+
+/* --- Mejoras para Móviles --- */
+@media (max-width: 767.98px) {
+    .gestion-header {
+        padding: 2rem 1rem;
+    }
+
+    .gestion-header h1 {
+        font-size: 2rem;
+    }
+
+    /* Permite que las pestañas se desplacen horizontalmente si no caben */
+    .nav-pills {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+        padding-bottom: 1rem; /* Espacio para la barra de scroll */
+    }
+
+    .nav-pills .nav-item {
+        flex-shrink: 0; /* Evita que los items se encojan */
+    }
+
+    .video-notification-container {
+        width: 90%; /* Ocupa casi todo el ancho */
+        bottom: 10px;
+        left: 5%; /* Centrado horizontalmente */
+        right: 5%;
+    }
 }

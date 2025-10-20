@@ -88,6 +88,14 @@ app.get('/GestionAdmin.html', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'client', 'Html', 'GestionAdmin.html'));
 });
 
+app.get('/RecuperarCuenta.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'client', 'Html', 'RecuperarCuenta.html'));
+});
+
+app.get('/RestablecerContrasena.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'client', 'Html', 'RestablecerContrasena.html'));
+});
+
 app.get('/pago-exitoso.html', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'client', 'Html', 'pago-exitoso.html'));
 });
@@ -481,6 +489,51 @@ app.post('/api/login', async (req, res) => {
     }
   };
   res.status(200).json({ message: 'Login exitoso', session: session });
+});
+
+// Endpoint para solicitar restablecimiento de contraseña
+app.post('/api/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ error: 'El correo electrónico es requerido.' });
+  }
+
+  try {
+    // Usamos la función de Supabase para enviar el correo de recuperación.
+    // Supabase se encarga de generar el token y enviar el email.
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      // Es importante que la URL base coincida con la configurada en Supabase.
+      // Para desarrollo local, esta URL es la correcta.
+      redirectTo: 'http://localhost:3000/RestablecerContrasena.html',
+    });
+
+    if (error) {
+      // Aunque haya un error, devolvemos un mensaje genérico por seguridad.
+      console.error('Error de Supabase al solicitar reseteo:', error.message);
+    }
+
+    res.json({ message: 'Si tu correo está registrado, recibirás un enlace para restablecer tu contraseña.' });
+
+  } catch (error) {
+    console.error('Error en forgot-password:', error.message);
+    res.status(500).json({ error: 'Ocurrió un error al procesar la solicitud.' });
+  }
+});
+
+// Endpoint para obtener todos los usuarios (para el admin)
+app.get('/api/usuarios', async (req, res) => {
+  try {
+    // Hacemos un join con la tabla de roles para obtener el nombre del rol
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('*, roles(nombre_rol)')
+      .order('usuario_id', { ascending: true });
+
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch usuarios.' });
+  }
 });
 
 app.get('/api/mis-cursos', async (req, res) => {

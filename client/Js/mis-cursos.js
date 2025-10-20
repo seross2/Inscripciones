@@ -134,22 +134,22 @@ document.addEventListener('DOMContentLoaded', () => {
             // Renderizar perfil
             perfilContainer.innerHTML = `
                 <div class="card profile-card">
-                    <div class="card-header">Perfil del Estudiante</div>
-                    <div class="card-body d-flex align-items-center">
-                        <div class="position-relative me-4">
+                    <div class="card-header fw-bold">Perfil del Estudiante</div>
+                    <div class="card-body d-flex flex-column flex-md-row align-items-center text-center text-md-start">
+                        <div class="position-relative me-md-4 mb-3 mb-md-0">
                             <img id="profile-avatar-img" src="${avatarUrl}" class="rounded-circle" alt="Avatar" width="120" height="120" style="object-fit: cover;">
                             <button id="btn-edit-avatar" class="btn btn-primary btn-sm rounded-circle position-absolute bottom-0 end-0" title="Cambiar avatar">
                                 <i class="bi bi-pencil-fill"></i>
                             </button>
                         </div>
                         <div class="flex-grow-1">
-                            <h5 class="card-title">${estudiante.Nombre || ''} ${estudiante.Apellido || estudiante.nombre_completo || ''}</h5>
+                            <h5 class="card-title mb-1">${estudiante.Nombre || ''} ${estudiante.Apellido || estudiante.nombre_completo || ''}</h5>
                             <p class="card-text mb-1"><strong>Email:</strong> ${estudiante.Email || estudiante.email}</p>
                             <p class="card-text mb-1 small text-muted"><strong>Teléfono:</strong> ${estudiante.Telefono || 'No disponible'}</p>
                             <p class="card-text mb-0 small text-muted"><strong>Nacimiento:</strong> ${estudiante.FechaNacimiento ? new Date(estudiante.FechaNacimiento).toLocaleDateString() : 'No disponible'}</p>
                         </div>
-                        <div class="text-center">
-                            <h3 class="fw-bold mb-0">${estudiante.Creditos || 0}</h3>
+                        <div class="text-center ms-md-4 mt-3 mt-md-0 border-md-start ps-md-4">
+                            <h2 class="fw-bold mb-0">${estudiante.Creditos || 0}</h2>
                             <small class="text-muted">CRÉDITOS</small>
                         </div>
                     </div>
