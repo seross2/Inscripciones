@@ -501,10 +501,11 @@ app.post('/api/forgot-password', async (req, res) => {
   try {
     // Usamos la función de Supabase para enviar el correo de recuperación.
     // Supabase se encarga de generar el token y enviar el email.
+    const siteUrl = process.env.NODE_ENV === 'production' ? 'https://inscripciones-vlzu.onrender.com' : 'http://localhost:3000';
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      // Es importante que la URL base coincida con la configurada en Supabase.
-      // Para desarrollo local, esta URL es la correcta.
-      redirectTo: 'http://localhost:3000/RestablecerContrasena.html',
+      // Usamos la URL del sitio desplegado para la redirección
+      redirectTo: `${siteUrl}/RestablecerContrasena.html`,
     });
 
     if (error) {
