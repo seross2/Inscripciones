@@ -6,6 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcrypt';
 import multer from 'multer';
+import Stripe from 'stripe';
 
 // Cargar variables de entorno explícitamente al inicio
 dotenv.config();
@@ -19,9 +20,16 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Stripe
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET; // Ya no es necesario
+
+// Constante de negocio para el precio de los créditos
+const PRECIO_POR_CREDITO = 20000;
+
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // Ahora podemos usar express.json() para todas las rutas
 
 // Configuración de Multer para manejar la subida de archivos en memoria
 const storage = multer.memoryStorage();
@@ -31,9 +39,9 @@ const upload = multer({ storage: storage });
 app.use(express.static(path.join(__dirname, '..', 'client')));
 
 // Check if environment variables are loaded
-if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY || !process.env.STRIPE_SECRET_KEY) {
   console.error(
-    'Error: SUPABASE_URL and SUPABASE_SERVICE_KEY are required in your .env file'
+    'Error: SUPABASE_URL, SUPABASE_SERVICE_KEY, y STRIPE_SECRET_KEY son requeridas en tu archivo .env'
   );
   process.exit(1); // Exit if credentials are not found
 }
@@ -74,6 +82,18 @@ app.get('/MisCursos.html', (req, res) => {
 
 app.get('/PortalPagos.html', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'client', 'Html', 'PortalPagos.html'));
+});
+
+app.get('/GestionAdmin.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'client', 'Html', 'GestionAdmin.html'));
+});
+
+app.get('/pago-exitoso.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'client', 'Html', 'pago-exitoso.html'));
+});
+
+app.get('/pago-cancelado.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'client', 'Html', 'pago-cancelado.html'));
 });
 
 // Example API route to fetch data from Supabase
@@ -173,6 +193,36 @@ app.get('/api/asignaturas/:id', async (req, res) => {
   }
 });
 
+app.post('/api/asignaturas', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('ASIGNATURAS').insert(req.body).select();
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create asignatura.' });
+  }
+});
+
+app.put('/api/asignaturas/:id', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('ASIGNATURAS').update(req.body).eq('AsignaturaID', req.params.id).select();
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update asignatura.' });
+  }
+});
+
+app.delete('/api/asignaturas/:id', async (req, res) => {
+  try {
+    const { error } = await supabase.from('ASIGNATURAS').delete().eq('AsignaturaID', req.params.id);
+    if (error) throw error;
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete asignatura.' });
+  }
+});
+
 app.get('/api/profesores', async (req, res) => {
   try {
     const { data, error } = await supabase.from('PROFESORES').select('ProfesorID, Nombre, Apellido');
@@ -180,6 +230,46 @@ app.get('/api/profesores', async (req, res) => {
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch profesores.' });
+  }
+});
+
+app.post('/api/profesores', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('PROFESORES').insert(req.body).select();
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create profesor.' });
+  }
+});
+
+app.put('/api/profesores/:id', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('PROFESORES').update(req.body).eq('ProfesorID', req.params.id).select();
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update profesor.' });
+  }
+});
+
+app.delete('/api/profesores/:id', async (req, res) => {
+  try {
+    const { error } = await supabase.from('PROFESORES').delete().eq('ProfesorID', req.params.id);
+    if (error) throw error;
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete profesor.' });
+  }
+});
+
+app.get('/api/profesores/all', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('PROFESORES').select('*');
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch all profesores.' });
   }
 });
 
@@ -227,6 +317,37 @@ app.post('/api/horarios', async (req, res) => {
   }
 });
 
+app.get('/api/horarios', async (req, res) => {
+  try {
+    // Hacemos un join para obtener el número de grupo y el nombre de la asignatura
+    const { data, error } = await supabase.from('HORARIOS').select('*, GRUPOS(NumeroGrupo, ASIGNATURAS(NombreAsignatura))');
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch horarios.' });
+  }
+});
+
+app.put('/api/horarios/:id', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('HORARIOS').update(req.body).eq('HorarioID', req.params.id).select();
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update horario.' });
+  }
+});
+
+app.delete('/api/horarios/:id', async (req, res) => {
+  try {
+    const { error } = await supabase.from('HORARIOS').delete().eq('HorarioID', req.params.id);
+    if (error) throw error;
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete horario.' });
+  }
+});
+
 app.post('/api/grupos', async (req, res) => {
   try {
     const { data, error } = await supabase.from('GRUPOS').insert(req.body).select();
@@ -238,6 +359,35 @@ app.post('/api/grupos', async (req, res) => {
   }
 });
 
+app.put('/api/grupos/:id', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('GRUPOS').update(req.body).eq('GrupoID', req.params.id).select();
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update grupo.' });
+  }
+});
+
+app.delete('/api/grupos/:id', async (req, res) => {
+  try {
+    const { error } = await supabase.from('GRUPOS').delete().eq('GrupoID', req.params.id);
+    if (error) throw error;
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete grupo.' });
+  }
+});
+
+app.get('/api/grupos', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('GRUPOS').select('*, ASIGNATURAS(NombreAsignatura), PROFESORES(Nombre, Apellido), PERIODOS_ACADEMICOS(NombrePeriodo)');
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch grupos.' });
+  }
+});
 
 // --- ENDPOINTS DE AUTENTICACIÓN ---
 
@@ -326,7 +476,8 @@ app.post('/api/login', async (req, res) => {
       id: user.usuario_id,
       email: user.email,
       nombre_usuario: user.nombre_usuario,
-      avatar: avatarUrl // Añadimos el avatar a la sesión
+      avatar: avatarUrl, // Añadimos el avatar a la sesión
+      rol_id: user.rol_id // Añadimos el rol_id a la sesión
     }
   };
   res.status(200).json({ message: 'Login exitoso', session: session });
@@ -649,6 +800,120 @@ app.post('/api/pagos', async (req, res) => {
   }
 });
 
+// --- ENDPOINT PARA CREAR SESIÓN DE PAGO EN STRIPE ---
+app.post('/api/create-checkout-session', async (req, res) => {
+  const { cantidad, usuario_id } = req.body;
+
+  if (!cantidad || cantidad < 1 || !usuario_id) {
+    return res.status(400).json({ error: 'La cantidad y el ID de usuario son requeridos.' });
+  }
+
+  // El ID del precio de tu producto en Stripe.
+  // Este ID lo encuentras en el Dashboard de Stripe, en la página del producto.
+  // Es el que empieza con 'price_...'.
+  const PRICE_ID = 'price_1SKJhkRvbNwWOpAueOunQkW4';
+
+  const successUrl = `${req.protocol}://${req.get('host')}/pago-exitoso.html?session_id={CHECKOUT_SESSION_ID}`;
+  const cancelUrl = `${req.protocol}://${req.get('host')}/pago-cancelado.html`;
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      line_items: [
+        {
+          price: PRICE_ID,
+          quantity: cantidad,
+        },
+      ],
+      mode: 'payment',
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      // Pasamos el ID de nuestro usuario para saber a quién darle los créditos.
+      client_reference_id: usuario_id,
+    });
+
+    // Enviamos la URL de la sesión de Stripe al cliente para que pueda redirigir.
+    res.json({ url: session.url });
+
+  } catch (error) {
+    console.error('Error creando la sesión de checkout de Stripe:', error);
+    // Si el error es por el PRICE_ID, damos una pista.
+    if (error.code === 'resource_missing' && error.param === 'line_items[0][price]') {
+      return res.status(500).json({ error: `Error de configuración: El Price ID '${PRICE_ID}' no es válido. Por favor, actualízalo en server.js.` });
+    }
+    res.status(500).json({ error: 'No se pudo iniciar el proceso de pago.' });
+  }
+});
+
+// --- ENDPOINT PARA VERIFICAR PAGO DE STRIPE (Alternativa a Webhook) ---
+app.get('/api/verify-payment', async (req, res) => {
+  const { session_id } = req.query;
+  if (!session_id) {
+    return res.status(400).json({ error: 'Falta el ID de la sesión.' });
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+
+    // Verificar si el pago fue exitoso
+    if (session.payment_status !== 'paid') {
+      return res.status(402).json({ error: 'El pago no ha sido completado.' });
+    }
+
+    // Evitar procesar el mismo pago dos veces
+    const { data: pagoExistente, error: checkError } = await supabase
+      .from('pagos')
+      .select('pago_id')
+      .eq('referencia_externa', session.id)
+      .single();
+
+    if (checkError && checkError.code !== 'PGRST116') throw checkError; // PGRST116 = no rows found, lo cual es bueno.
+    if (pagoExistente) {
+      return res.status(200).json({ message: 'Este pago ya fue procesado anteriormente.' });
+    }
+
+    // El pago es válido y no ha sido procesado. Procedemos a guardar y dar créditos.
+    const usuario_id = session.client_reference_id;
+    const monto = session.amount_total / 100;
+    const moneda = session.currency.toUpperCase();
+
+    if (!usuario_id) {
+      throw new Error('No se encontró la referencia del usuario en la sesión de pago.');
+    }
+
+    // 1. Guardar el pago en la tabla 'pagos'
+    const nuevoPago = {
+      usuario_id,
+      referencia_externa: session.id,
+      monto,
+      moneda,
+      metodo_pago: 'Stripe',
+      estado_pago: 'COMPLETADO',
+    };
+
+    const { error: pagoError } = await supabase.from('pagos').insert(nuevoPago);
+    if (pagoError) throw new Error('Error al registrar el pago en la base de datos.');
+
+    // 2. Calcular y añadir créditos
+    const PRECIO_POR_CREDITO = 20000;
+    const creditosComprados = Math.floor(monto / PRECIO_POR_CREDITO);
+
+    if (creditosComprados > 0) {
+      const { error: creditosError } = await supabase.rpc('incrementar_creditos', {
+        p_id_usuario: usuario_id,
+        p_cantidad: creditosComprados
+      });
+      if (creditosError) throw new Error('Error al actualizar los créditos del usuario.');
+    }
+
+    res.status(200).json({ message: `Se han añadido ${creditosComprados} crédito(s) a tu cuenta.` });
+
+  } catch (error) {
+    console.error('Error verificando la sesión de Stripe:', error.message);
+    res.status(500).json({ error: 'No se pudo verificar el pago.' });
+  }
+});
+
+
 // Endpoint para subir/actualizar el avatar de un estudiante
 app.post('/api/avatar', upload.single('avatar'), async (req, res) => {
   const { email } = req.body;
@@ -693,6 +958,40 @@ app.post('/api/avatar', upload.single('avatar'), async (req, res) => {
   } catch (error) {
     console.error('Error completo en la subida del avatar:', error);
     res.status(500).json({ error: 'No se pudo actualizar el avatar. Revisa la consola del servidor para más detalles.' });
+  }
+});
+
+// Endpoint para subir imagen de asignatura
+app.post('/api/asignaturas/upload-imagen', upload.single('imagen'), async (req, res) => {
+  const { codigo_asignatura } = req.body;
+  if (!req.file || !codigo_asignatura) {
+    return res.status(400).json({ error: 'Se requiere un archivo de imagen y el código de la asignatura.' });
+  }
+
+  try {
+    // Usamos el código de la asignatura para un nombre de archivo único y descriptivo
+    const fileName = `asignatura_${codigo_asignatura.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
+    const filePath = `public/${fileName}`;
+
+    // Subir el archivo a un bucket que podrías llamar 'imagenes-cursos'
+    const { error: uploadError } = await supabase.storage
+      .from('imagenes-cursos') // Asegúrate de que este bucket exista en tu Supabase Storage
+      .upload(filePath, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: true,
+      });
+
+    if (uploadError) throw new Error(`Error al subir la imagen: ${uploadError.message}`);
+
+    // Obtener la URL pública del archivo subido
+    const { data: urlData } = supabase.storage.from('imagenes-cursos').getPublicUrl(filePath);
+    const publicUrl = urlData.publicUrl;
+
+    res.json({ imageUrl: publicUrl });
+
+  } catch (error) {
+    console.error('Error en la subida de imagen de asignatura:', error);
+    res.status(500).json({ error: 'No se pudo procesar la imagen.' });
   }
 });
 

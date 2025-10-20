@@ -37,30 +37,32 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
         const cantidad = parseInt(cantidadInput.value);
-        if (cantidad < 1) {
+        if (!cantidad || cantidad < 1) {
             mostrarNotificacion('La cantidad de créditos debe ser al menos 1.', 'warning');
             return;
         }
 
-        const monto = cantidad * PRECIO_POR_CREDITO;
         const usuario_id = session.user.id;
 
         try {
-            const response = await fetch('/api/pagos', {
+            // 1. Llamar a nuestro backend para crear una sesión de pago personalizada
+            const response = await fetch('/api/create-checkout-session', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usuario_id, monto, moneda: MONEDA, metodo_pago: 'Compra de Créditos' })
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    cantidad: cantidad,
+                    usuario_id: usuario_id,
+                }),
             });
 
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error || 'Error al procesar la compra.');
+            const sessionData = await response.json();
 
-            mostrarNotificacion(`${result.message} Se han añadido ${cantidad} crédito(s) a tu cuenta. Redirigiendo a 'Mis Cursos'...`, 'success');
-            
-            setTimeout(() => {
-                window.location.href = '/MisCursos.html';
-            }, 3000);
+            if (!response.ok) throw new Error(sessionData.error || 'No se pudo iniciar el pago.');
 
+            // 2. Redirigir al usuario a la URL de pago de Stripe que nos dio el backend
+            window.location.href = sessionData.url;
         } catch (error) {
             mostrarNotificacion(error.message, 'danger');
         }

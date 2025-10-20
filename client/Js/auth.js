@@ -7,9 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const userNameSpan = document.getElementById('user-name');
         const logoutButton = document.getElementById('logout-button');
         const navUserAvatar = document.getElementById('nav-user-avatar');
+        const navGestionAdmin = document.getElementById('nav-gestion-admin');
 
         // Si alguno de los elementos principales no existe, no hacemos nada.
-        if (!navLoggedOut || !navLoggedIn || !navMisCursos || !navPortalPagos) {
+        if (!navLoggedOut || !navLoggedIn || !navMisCursos || !navPortalPagos || !navGestionAdmin) {
             return;
         }
 
@@ -26,7 +27,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     navLoggedIn.classList.remove('d-none'); // Mostrar "Hola, [usuario]" y "Cerrar Sesión"
                     navMisCursos.classList.remove('d-none'); // Mostrar "Mis Cursos"
                     navPortalPagos.classList.remove('d-none'); // Mostrar "Comprar Créditos"
-                    userNameSpan.textContent = session.user.nombre_usuario;
+
+                    // Si el usuario es Admin (rol_id: 2), mostrar el botón de Gestión
+                    if (session.user.rol_id === 2) {
+                        navGestionAdmin.classList.remove('d-none');
+                        // Saludo especial solo si NO estamos en la página de gestión
+                        if (window.location.pathname.includes('/GestionAdmin.html')) {
+                            userNameSpan.textContent = session.user.nombre_usuario;
+                        } else {
+                            userNameSpan.parentElement.innerHTML = `Hola Dios, <strong id="user-name">${session.user.nombre_usuario}</strong>`;
+                        }
+                    } else {
+                        userNameSpan.textContent = session.user.nombre_usuario;
+                    }
 
                     // Asignar el avatar
                     const avatarDefault = 'https://www.shutterstock.com/image-vector/user-login-authenticate-icon-human-600nw-1365533969.jpg';
@@ -43,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 navLoggedIn.classList.add('d-none');
                 navMisCursos.classList.add('d-none');
                 navPortalPagos.classList.add('d-none');
+                navGestionAdmin.classList.add('d-none');
             }
         } else {
             // ESTADO: No Logueado (no hay sesión)
@@ -50,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             navLoggedIn.classList.add('d-none');
             navMisCursos.classList.add('d-none');
             navPortalPagos.classList.add('d-none');
+            navGestionAdmin.classList.add('d-none');
         }
 
         // Añadir funcionalidad al botón de cerrar sesión

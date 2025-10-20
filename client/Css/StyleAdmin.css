@@ -1,0 +1,87 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+}
+
+.gestion-header {
+    background: linear-gradient(to right, #0d6efd, #0dcaf0);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+}
+
+.gestion-header h1 {
+    font-weight: 700;
+}
+
+.nav-pills .nav-link {
+    color: #495057;
+    font-weight: 600;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.card-header {
+    font-weight: 600;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.form-label {
+    font-weight: 600;
+}
+
+/* Estilo para los botones de acción en las tablas */
+.action-buttons .btn {
+    margin-right: 5px;
+}
+
+/* --- Estilos para la Notificación de Video --- */
+.video-notification-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 320px;
+    background-color: white;
+    border-radius: 0.5rem;
+    z-index: 1050;
+    overflow: hidden;
+    /* Inicialmente oculta y fuera de la pantalla */
+    transform: translateX(-150%);
+    opacity: 0;
+    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+
+.video-notification-container.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.video-notification-container .btn-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+}
+
+.video-notification-text {
+    padding: 0.75rem 1rem;
+    background-color: #f1f1f1;
+}
